@@ -2,405 +2,562 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Flores Agregados — Sistema de Control</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
+
+  <script src="db.js"></script>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loader-logo">FA</div>
+    <div class="spinner"></div>
+    <div class="loading-text">Cargando sistema...</div>
+  </div>
+
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
   <div class="app-shell">
-    <!-- SIDEBAR -->
+
+    <!-- ═══════════════════════════════════════
+         SIDEBAR
+    ═══════════════════════════════════════ -->
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-icon">FA</div>
-        <div class="brand-text">
-          <span class="brand-name">Flores</span>
-          <span class="brand-sub">Agregados</span>
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">FA</div>
+          <div class="brand-info">
+            <span class="brand-name">Flores</span>
+            <span class="brand-sub">Agregados · Sistema</span>
+          </div>
         </div>
+        <button class="sidebar-close" id="sidebarClose" onclick="closeSidebar()">✕</button>
       </div>
+
+      <!-- Capital Badge -->
+      <div class="capital-widget">
+        <div class="cw-label">Capital Actual</div>
+        <div class="cw-value" id="sidebar-capital">S/ 0.00</div>
+        <div class="cw-mes" id="sidebar-mes-label">Todos los meses</div>
+      </div>
+
+      <!-- Nav -->
       <nav class="sidebar-nav">
         <button class="nav-item active" data-tab="dashboard">
           <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-          Dashboard
+          <span>Dashboard</span>
         </button>
         <button class="nav-item" data-tab="ventas">
           <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-9.3-5h11.5c.7 0 1.3-.4 1.6-1l3.6-6.6A1 1 0 0020.6 4H5.2L4.3 2H1v2h2l3.6 8.6L5.3 15A2 2 0 007 18h14v-2H7.4l.3-3z"/></svg>
-          Ventas / Pedidos
+          <span>Ventas / Pedidos</span>
         </button>
         <button class="nav-item" data-tab="gastos">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-          Gastos Adicionales
+          <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+          <span>Gastos Adicionales</span>
         </button>
         <button class="nav-item" data-tab="stock">
-          <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.33C18 2.57 15.43 0 12.27 0c-1.43 0-2.8.58-3.84 1.62L7 3H4c-1.1 0-2 .9-2 2v15c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-          Stock / Compras
+          <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.33C18 2.57 15.43 0 12.27 0c-1.43 0-2.8.58-3.84 1.62L7 3H4c-1.1 0-2 .9-2 2v15c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM12.27 2c1.93 0 3.73 1.57 3.73 2.67 0 .24-.04.47-.09.69l-.02.08A1.35 1.35 0 0114.6 6H9.39l.52-.55C10.77 4.5 11.5 2 12.27 2z"/></svg>
+          <span>Stock / Compras</span>
         </button>
         <button class="nav-item" data-tab="prestamos">
-          <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-          Préstamos
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+          <span>Préstamos</span>
         </button>
         <button class="nav-item" data-tab="resumen">
           <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-          Resumen General
+          <span>Resumen General</span>
+        </button>
+        <button class="nav-item" data-tab="configuracion">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          <span>Configuración</span>
         </button>
       </nav>
+
+      <!-- Firebase Status -->
       <div class="sidebar-footer">
-        <div class="capital-badge">
-          <span class="cap-label">Capital Actual</span>
-          <span class="cap-value" id="sidebar-capital">S/ 0.00</span>
+        <div class="sync-status" id="sync-status">
+          <span class="sync-dot"></span>
+          <span class="sync-label" id="dot-label">Sin Firebase</span>
         </div>
+        <div class="sidebar-date" id="sidebar-date"></div>
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-      <!-- HEADER -->
+    <!-- ═══════════════════════════════════════
+         MAIN CONTENT
+    ═══════════════════════════════════════ -->
+    <main class="main-content" id="main-content">
+
+      <!-- TOP BAR -->
       <header class="top-bar">
-        <button class="menu-toggle" id="menuToggle">☰</button>
-        <div class="top-bar-title" id="pageTitle">Dashboard</div>
-        <div class="top-bar-date" id="currentDate"></div>
+        <button class="menu-btn" id="menuToggle" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="currentColor"/></svg>
+        </button>
+        <div class="top-bar-center">
+          <h1 class="page-title" id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="top-bar-right">
+          <div class="sync-pill" id="sync-pill">
+            <span class="pill-dot"></span>
+            <span class="pill-label">Local</span>
+          </div>
+        </div>
       </header>
 
-      <!-- MES SWITCHER -->
-      <div class="mes-switcher-wrap">
-        <div class="mes-switcher-label">📅 Período:</div>
-        <div class="mes-switcher" id="mes-switcher"></div>
+      <!-- MES SWITCHER BAR -->
+      <div class="mes-bar" id="mes-bar">
+        <svg viewBox="0 0 24 24" width="14" height="14" style="color:var(--text3);fill:currentColor;flex-shrink:0"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        <span class="mes-bar-label">Período:</span>
+        <div class="mes-pills" id="mes-switcher"></div>
       </div>
-      <!-- TABS -->
-      <div class="tab-content" id="tab-dashboard">
-        <!-- KPI CARDS -->
-        <div class="mes-periodo-badge" id="kpi-mes-label">Todos los meses</div>
-        <section class="kpi-grid">
-          <div class="kpi-card kpi-blue">
-            <div class="kpi-icon">💰</div>
-            <div class="kpi-info">
-              <span class="kpi-label">Capital Inicial</span>
-              <span class="kpi-value" id="kpi-capital-inicial">S/ 3,000</span>
-            </div>
-          </div>
-          <div class="kpi-card kpi-green">
-            <div class="kpi-icon">📈</div>
-            <div class="kpi-info">
-              <span class="kpi-label">Total Ventas</span>
-              <span class="kpi-value" id="kpi-ventas">S/ 0.00</span>
-            </div>
-          </div>
-          <div class="kpi-card kpi-red">
-            <div class="kpi-icon">📦</div>
-            <div class="kpi-info">
-              <span class="kpi-label">Total Costos</span>
-              <span class="kpi-value" id="kpi-costos">S/ 0.00</span>
-            </div>
-          </div>
-          <div class="kpi-card kpi-orange">
-            <div class="kpi-icon">🔧</div>
-            <div class="kpi-info">
-              <span class="kpi-label">Gastos Adicionales</span>
-              <span class="kpi-value" id="kpi-gastos">S/ 0.00</span>
-            </div>
-          </div>
-          <div class="kpi-card kpi-purple">
-            <div class="kpi-icon">🏗️</div>
-            <div class="kpi-info">
-              <span class="kpi-label">Compra Agregados</span>
-              <span class="kpi-value" id="kpi-compra-agr">S/ 0.00</span>
-            </div>
-          </div>
-          <div class="kpi-card kpi-teal">
-            <div class="kpi-icon">💎</div>
-            <div class="kpi-info">
-              <span class="kpi-label">Capital Actual</span>
-              <span class="kpi-value" id="kpi-capital-actual">S/ 0.00</span>
-            </div>
-          </div>
-        </section>
 
-        <!-- CHARTS ROW -->
-        <section class="charts-row">
-          <div class="chart-card">
-            <div class="chart-title">Ventas por Día</div>
-            <canvas id="chartVentasDia" height="180"></canvas>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Ganancia por Material</div>
-            <canvas id="chartMaterial" height="180"></canvas>
-          </div>
-        </section>
+      <!-- ══ TABS CONTAINER ══ -->
+      <div class="tabs-container">
 
-        <!-- RECENT ORDERS -->
-        <section class="recent-section">
-          <div class="section-header">
-            <h3>Últimos Pedidos</h3>
-            <button class="btn-primary btn-sm" onclick="switchTab('ventas')">Ver todos</button>
+        <!-- ───── DASHBOARD ───── -->
+        <div class="tab-pane" id="tab-dashboard">
+          <div class="periodo-badge" id="kpi-mes-label">Todos los meses</div>
+
+          <!-- KPIs -->
+          <section class="kpi-grid">
+            <div class="kpi-card accent-blue">
+              <div class="kpi-header"><span class="kpi-ico">💰</span><span class="kpi-tag">Capital Inicial</span></div>
+              <div class="kpi-val" id="kpi-capital-inicial">S/ 3,000</div>
+            </div>
+            <div class="kpi-card accent-green">
+              <div class="kpi-header"><span class="kpi-ico">📈</span><span class="kpi-tag">Ventas Brutas</span></div>
+              <div class="kpi-val" id="kpi-ventas">S/ 0.00</div>
+            </div>
+            <div class="kpi-card accent-emerald">
+              <div class="kpi-header"><span class="kpi-ico">💚</span><span class="kpi-tag">Ganancias Netas</span></div>
+              <div class="kpi-val" id="kpi-ganancias">S/ 0.00</div>
+            </div>
+            <div class="kpi-card accent-red">
+              <div class="kpi-header"><span class="kpi-ico">📦</span><span class="kpi-tag">Costos de Venta</span></div>
+              <div class="kpi-val" id="kpi-costos">S/ 0.00</div>
+            </div>
+            <div class="kpi-card accent-orange">
+              <div class="kpi-header"><span class="kpi-ico">🔧</span><span class="kpi-tag">Gastos Adicionales</span></div>
+              <div class="kpi-val" id="kpi-gastos">S/ 0.00</div>
+            </div>
+            <div class="kpi-card accent-purple">
+              <div class="kpi-header"><span class="kpi-ico">🏗️</span><span class="kpi-tag">Compra Agregados</span></div>
+              <div class="kpi-val" id="kpi-compras">S/ 0.00</div>
+            </div>
+            <div class="kpi-card accent-teal" id="kpi-capital-card">
+              <div class="kpi-header"><span class="kpi-ico">💎</span><span class="kpi-tag">Capital Actual</span></div>
+              <div class="kpi-val" id="kpi-capital-actual">S/ 0.00</div>
+            </div>
+            <div class="kpi-card accent-yellow">
+              <div class="kpi-header"><span class="kpi-ico">⏳</span><span class="kpi-tag">Pendiente Cobro</span></div>
+              <div class="kpi-val" id="kpi-pendiente">S/ 0.00</div>
+            </div>
+          </section>
+
+          <!-- Charts -->
+          <section class="charts-grid">
+            <div class="chart-card span-2">
+              <div class="chart-header">
+                <h3>Ganancias por Día</h3>
+                <span class="chart-badge" id="chart-badge-dias">Últ. 20 días</span>
+              </div>
+              <canvas id="chartVentasDia" height="160"></canvas>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Por Material</h3>
+              </div>
+              <canvas id="chartMaterial" height="190"></canvas>
+            </div>
+          </section>
+
+          <!-- Últimos pedidos -->
+          <section class="card">
+            <div class="card-header">
+              <h3>Últimos Pedidos <span class="count-chip" id="recent-count">0</span></h3>
+              <button class="btn-sm btn-outline" onclick="switchTab('ventas')">Ver todos →</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr>
+                  <th>#</th><th>Fecha</th><th>Cliente</th><th>Material</th>
+                  <th>m³</th><th>Venta</th><th>Ganancia</th><th>Estado</th>
+                </tr></thead>
+                <tbody id="tbody-recent"></tbody>
+              </table>
+            </div>
+          </section>
+        </div><!-- /dashboard -->
+
+        <!-- ───── VENTAS ───── -->
+        <div class="tab-pane hidden" id="tab-ventas">
+          <div class="pane-header">
+            <div>
+              <h2>Ventas / Pedidos</h2>
+              <p class="pane-sub">Registro completo de pedidos — <span id="ventas-count-label">0 pedidos</span></p>
+            </div>
+            <button class="btn-primary" onclick="openModal('modal-venta')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+              Nuevo Pedido
+            </button>
           </div>
+
+          <!-- Stats Pills -->
+          <div class="stats-row" id="ventas-stats"></div>
+
+          <!-- Filtros -->
+          <div class="filter-card">
+            <div class="filter-row">
+              <input type="date" id="filter-fecha-desde" class="inp" placeholder="Desde" />
+              <input type="date" id="filter-fecha-hasta" class="inp" placeholder="Hasta" />
+              <select id="filter-cliente" class="inp">
+                <option value="">Todos los clientes</option>
+              </select>
+              <select id="filter-material" class="inp">
+                <option value="">Todos los materiales</option>
+              </select>
+              <select id="filter-pagado" class="inp">
+                <option value="">Pagado / Pendiente</option>
+                <option value="SI">✅ Pagados</option>
+                <option value="NO">🔴 Pendientes</option>
+              </select>
+              <button class="btn-accent" onclick="filterVentas()">Filtrar</button>
+              <button class="btn-ghost" onclick="clearFiltersVentas()">Limpiar</button>
+            </div>
+          </div>
+
           <div class="table-wrap">
-            <table class="data-table" id="tbl-recent">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Fecha</th>
-                  <th>Cliente</th>
-                  <th>Material</th>
-                  <th>m³</th>
-                  <th>Venta</th>
-                  <th>Ganancia</th>
-                  <th>Pagado</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-recent"></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-
-      <!-- VENTAS TAB -->
-      <div class="tab-content hidden" id="tab-ventas">
-        <div class="section-header">
-          <h2>Registro de Ventas / Pedidos</h2>
-          <button class="btn-primary" onclick="openModal('modal-venta')">+ Nuevo Pedido</button>
-        </div>
-
-        <!-- FILTERS -->
-        <div class="filter-bar">
-          <input type="date" id="filter-fecha-desde" class="filter-input" placeholder="Desde" />
-          <input type="date" id="filter-fecha-hasta" class="filter-input" placeholder="Hasta" />
-          <select id="filter-cliente" class="filter-input">
-            <option value="">Todos los clientes</option>
-          </select>
-          <select id="filter-material" class="filter-input">
-            <option value="">Todos los materiales</option>
-          </select>
-          <button class="btn-outline" onclick="filterVentas()">Filtrar</button>
-          <button class="btn-ghost" onclick="clearFilters()">Limpiar</button>
-        </div>
-
-        <!-- STATS BAR -->
-        <div class="stats-bar" id="ventas-stats"></div>
-
-        <div class="table-wrap">
-          <table class="data-table" id="tbl-ventas">
-            <thead>
-              <tr>
+            <table class="data-table" id="tbl-ventas">
+              <thead><tr>
                 <th>#</th>
                 <th>Fecha</th>
                 <th>Cliente</th>
-                <th>Pagado</th>
+                <th>Estado</th>
                 <th>Material</th>
-                <th>Cant. (m³)</th>
+                <th>Cant (m³)</th>
                 <th>P. Venta</th>
                 <th>Total Venta</th>
                 <th>Cant. Comprada</th>
-                <th>Costo x m³</th>
+                <th>Costo×m³</th>
                 <th>Total Costo</th>
                 <th>Ganancia</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-ventas"></tbody>
-            <tfoot>
-              <tr class="tfoot-total" id="tfoot-ventas">
-                <td colspan="7" class="text-right fw-bold">TOTALES:</td>
-                <td id="total-venta-sum" class="fw-bold"></td>
+                <th class="col-actions">Acciones</th>
+              </tr></thead>
+              <tbody id="tbody-ventas"></tbody>
+              <tfoot><tr class="tfoot-row">
+                <td colspan="7" class="tfoot-label">TOTALES:</td>
+                <td id="total-venta-sum" class="mono fw"></td>
+                <td></td><td></td>
+                <td id="total-costo-sum" class="mono fw"></td>
+                <td id="total-ganancia-sum" class="mono fw"></td>
                 <td></td>
-                <td></td>
-                <td id="total-costo-sum" class="fw-bold"></td>
-                <td id="total-ganancia-sum" class="fw-bold"></td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
+              </tr></tfoot>
+            </table>
+          </div>
+        </div><!-- /ventas -->
 
-      <!-- GASTOS TAB -->
-      <div class="tab-content hidden" id="tab-gastos">
-        <div class="section-header">
-          <h2>Gastos Adicionales</h2>
-          <button class="btn-primary" onclick="openModal('modal-gasto')">+ Nuevo Gasto</button>
-        </div>
-        <div class="gastos-layout">
-          <div class="gastos-main">
-            <div class="table-wrap">
-              <table class="data-table" id="tbl-gastos">
-                <thead>
-                  <tr>
+        <!-- ───── GASTOS ───── -->
+        <div class="tab-pane hidden" id="tab-gastos">
+          <div class="pane-header">
+            <div>
+              <h2>Gastos Adicionales</h2>
+              <p class="pane-sub">Combustible, comida, mantenimiento y más</p>
+            </div>
+            <button class="btn-primary" onclick="openModal('modal-gasto')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+              Nuevo Gasto
+            </button>
+          </div>
+
+          <div class="two-col-layout">
+            <div class="col-main">
+              <!-- Filtro gastos -->
+              <div class="filter-card" style="margin-bottom:14px">
+                <div class="filter-row">
+                  <input type="date" id="filter-gasto-desde" class="inp" />
+                  <input type="date" id="filter-gasto-hasta" class="inp" />
+                  <input type="text" id="filter-gasto-desc" class="inp" placeholder="Buscar descripción..." />
+                  <button class="btn-accent" onclick="filterGastos()">Filtrar</button>
+                  <button class="btn-ghost" onclick="clearFiltersGastos()">Limpiar</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr>
                     <th>Fecha</th>
                     <th>Descripción</th>
                     <th>Monto</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-gastos"></tbody>
-                <tfoot>
-                  <tr class="tfoot-total">
-                    <td colspan="2" class="text-right fw-bold">TOTAL GASTOS:</td>
-                    <td id="total-gastos-sum" class="fw-bold"></td>
+                    <th class="col-actions">Acciones</th>
+                  </tr></thead>
+                  <tbody id="tbody-gastos"></tbody>
+                  <tfoot><tr class="tfoot-row">
+                    <td colspan="2" class="tfoot-label">TOTAL GASTOS:</td>
+                    <td id="total-gastos-sum" class="mono fw red"></td>
                     <td></td>
-                  </tr>
-                </tfoot>
+                  </tr></tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="col-side">
+              <div class="side-card">
+                <h4>Por Categoría</h4>
+                <div id="gastos-categorias"></div>
+              </div>
+              <div class="side-card chart-wrap">
+                <h4>Distribución</h4>
+                <canvas id="chartGastos" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div><!-- /gastos -->
+
+        <!-- ───── STOCK ───── -->
+        <div class="tab-pane hidden" id="tab-stock">
+          <div class="pane-header">
+            <div>
+              <h2>Stock y Compras</h2>
+              <p class="pane-sub">Inventario de agregados y reposiciones</p>
+            </div>
+            <button class="btn-primary" onclick="openModal('modal-compra')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+              Registrar Compra
+            </button>
+          </div>
+
+          <!-- Stock Cards -->
+          <div class="stock-grid" id="stock-cards"></div>
+
+          <!-- Historial compras -->
+          <div class="card" style="margin-top:20px">
+            <div class="card-header">
+              <h3>Historial de Compras</h3>
+              <span class="count-chip" id="compras-count">0</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr>
+                  <th>Fecha</th>
+                  <th>Agregado</th>
+                  <th>Cantidad (m³)</th>
+                  <th>Costo Compra</th>
+                  <th>Costo × m³</th>
+                  <th class="col-actions">Acciones</th>
+                </tr></thead>
+                <tbody id="tbody-compras"></tbody>
+                <tfoot><tr class="tfoot-row">
+                  <td colspan="3" class="tfoot-label">TOTAL INVERTIDO:</td>
+                  <td id="total-compras-sum" class="mono fw red"></td>
+                  <td></td><td></td>
+                </tr></tfoot>
               </table>
             </div>
           </div>
-          <div class="gastos-side">
-            <div class="side-card">
-              <h4>Resumen por Categoría</h4>
-              <div id="gastos-categorias"></div>
+        </div><!-- /stock -->
+
+        <!-- ───── PRÉSTAMOS ───── -->
+        <div class="tab-pane hidden" id="tab-prestamos">
+          <div class="pane-header">
+            <div>
+              <h2>Control de Préstamos</h2>
+              <p class="pane-sub">Seguimiento de deudas y amortización</p>
             </div>
-            <canvas id="chartGastos" height="220"></canvas>
+            <button class="btn-primary" onclick="openModal('modal-prestamo')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+              Añadir Préstamo
+            </button>
           </div>
-        </div>
-      </div>
 
-      <!-- STOCK TAB -->
-      <div class="tab-content hidden" id="tab-stock">
-        <div class="section-header">
-          <h2>Stock y Compras de Agregados</h2>
-          <button class="btn-primary" onclick="openModal('modal-compra')">+ Registrar Compra</button>
-        </div>
-        <div class="stock-layout">
-          <div class="stock-cards" id="stock-cards"></div>
-        </div>
-        <div class="section-header" style="margin-top:2rem">
-          <h3>Historial de Compras</h3>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table" id="tbl-compras">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Agregado</th>
-                <th>Cantidad (m³)</th>
-                <th>Costo Compra (S/)</th>
-                <th>Costo x m³</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-compras"></tbody>
-            <tfoot>
-              <tr class="tfoot-total">
-                <td colspan="3" class="text-right fw-bold">TOTAL INVERTIDO:</td>
-                <td id="total-compras-sum" class="fw-bold"></td>
-                <td></td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-
-      <!-- PRESTAMOS TAB -->
-      <div class="tab-content hidden" id="tab-prestamos">
-        <div class="section-header">
-          <h2>Control de Préstamos</h2>
-          <button class="btn-primary" onclick="openModal('modal-prestamo')">+ Añadir Préstamo</button>
-        </div>
-        <div class="prestamos-layout">
-          <div class="prestamos-list" id="prestamos-list"></div>
-          <div class="prestamos-side">
-            <div class="side-card prestamo-summary">
-              <h4>Resumen de Deuda</h4>
-              <div class="summary-row">
-                <span>Total Préstamos:</span>
-                <strong id="p-total-prestamos">S/ 0.00</strong>
+          <div class="two-col-layout">
+            <div class="col-main">
+              <div class="prestamos-list" id="prestamos-list"></div>
+            </div>
+            <div class="col-side">
+              <div class="side-card prestamo-summary-card">
+                <h4>Resumen de Deuda</h4>
+                <div class="sum-row"><span>Total Préstamos</span><strong id="p-total-prestamos">S/ 0.00</strong></div>
+                <div class="sum-row"><span>Días Trabajados</span>
+                  <strong>
+                    <input type="number" id="p-dias" class="dias-input" min="1" max="31" onchange="saveDiasTrabajados()" />
+                  </strong>
+                </div>
+                <div class="sum-row"><span>Descuento Diario</span><strong id="p-desc-diario">S/ 0.00</strong></div>
+                <div class="sum-row highlight-row"><span>Restante a pagar</span><strong id="p-restante" class="red">S/ 0.00</strong></div>
+                <div class="sum-row"><span>Ganancias acumuladas</span><strong id="p-total-capital" class="green">S/ 0.00</strong></div>
+                <div class="sum-row"><span>Capital a favor</span><strong id="p-capital-favor" class="teal">S/ 0.00</strong></div>
               </div>
-              <div class="summary-row">
-                <span>Días Trabajados:</span>
-                <strong id="p-dias">0</strong>
-              </div>
-              <div class="summary-row">
-                <span>Descuento Diario:</span>
-                <strong id="p-desc-diario">S/ 0.00</strong>
-              </div>
-              <div class="summary-row highlight">
-                <span>Restante (hoy):</span>
-                <strong id="p-restante">S/ 0.00</strong>
-              </div>
-              <div class="summary-row">
-                <span>Total Capital (ganancias):</span>
-                <strong id="p-total-capital">S/ 0.00</strong>
-              </div>
-              <div class="summary-row">
-                <span>Capital a favor:</span>
-                <strong id="p-capital-favor">S/ 0.00</strong>
+              <div class="side-card">
+                <h4>Progreso de Pago</h4>
+                <div class="prog-wrap">
+                  <div class="prog-bar"><div class="prog-fill" id="p-progress-bar"></div></div>
+                  <div class="prog-pct" id="p-progress-pct">0%</div>
+                </div>
               </div>
             </div>
-            <div class="progress-section">
-              <div class="prog-label">Progreso de pago</div>
-              <div class="progress-bar-wrap">
-                <div class="progress-bar-fill" id="p-progress-bar"></div>
-              </div>
-              <div class="prog-pct" id="p-progress-pct">0%</div>
+          </div>
+        </div><!-- /prestamos -->
+
+        <!-- ───── RESUMEN ───── -->
+        <div class="tab-pane hidden" id="tab-resumen">
+          <div class="pane-header">
+            <div>
+              <h2>Resumen General</h2>
+              <p class="pane-sub" id="resumen-sub">Visión consolidada del negocio</p>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- RESUMEN TAB -->
-      <div class="tab-content hidden" id="tab-resumen">
-        <div class="section-header">
-          <h2>Resumen General del Negocio</h2>
-        </div>
-        <div class="resumen-grid">
-          <div class="resumen-block">
-            <h4>📊 Balance Financiero</h4>
-            <div id="resumen-balance"></div>
+          <div class="resumen-grid">
+            <div class="card">
+              <div class="card-header"><h3>📊 Balance Financiero</h3></div>
+              <div id="resumen-balance"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>🏆 Top Clientes</h3></div>
+              <div id="resumen-clientes"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>📦 Top Materiales</h3></div>
+              <div id="resumen-materiales"></div>
+            </div>
+            <div class="card" id="resumen-comparativa-block">
+              <div class="card-header"><h3>📅 Comparativa por Mes</h3></div>
+              <div id="resumen-comparativa"></div>
+            </div>
+            <div class="card span-2">
+              <div class="card-header"><h3>📈 Actividad Semanal</h3></div>
+              <canvas id="chartSemana" height="180"></canvas>
+            </div>
           </div>
-          <div class="resumen-block">
-            <h4>🏆 Top Clientes</h4>
-            <div id="resumen-clientes"></div>
+        </div><!-- /resumen -->
+
+        <!-- ───── CONFIGURACIÓN ───── -->
+        <div class="tab-pane hidden" id="tab-configuracion">
+          <div class="pane-header">
+            <div>
+              <h2>Configuración</h2>
+              <p class="pane-sub">Ajustes del sistema y conexión Firebase</p>
+            </div>
           </div>
-          <div class="resumen-block">
-            <h4>📦 Top Materiales</h4>
-            <div id="resumen-materiales"></div>
+
+          <div class="config-grid">
+            <!-- Datos generales -->
+            <div class="card">
+              <div class="card-header"><h3>⚙️ Datos Generales</h3></div>
+              <div class="config-form">
+                <div class="form-group">
+                  <label>Capital Inicial (S/)</label>
+                  <input type="number" id="cfg-capital" class="inp" step="100" min="0" placeholder="3000" />
+                </div>
+                <div class="form-group">
+                  <label>Días Trabajados (para cálculo préstamos)</label>
+                  <input type="number" id="cfg-dias" class="inp" step="1" min="1" max="31" placeholder="26" />
+                </div>
+                <button class="btn-primary" onclick="saveConfig()">Guardar Configuración</button>
+              </div>
+            </div>
+
+            <!-- Firebase -->
+            <div class="card firebase-card">
+              <div class="card-header">
+                <h3>🔥 Firebase Realtime Database</h3>
+                <span class="badge-status" id="firebase-badge">No configurado</span>
+              </div>
+              <p class="config-desc">Conecta Firebase para sincronizar datos en tiempo real desde cualquier dispositivo. Tus datos siempre estarán respaldados en la nube.</p>
+
+              <div class="firebase-steps">
+                <div class="step"><span class="step-n">1</span><span>Ve a <strong>console.firebase.google.com</strong> y crea un proyecto</span></div>
+                <div class="step"><span class="step-n">2</span><span>Entra a <strong>Realtime Database → Crear base de datos</strong></span></div>
+                <div class="step"><span class="step-n">3</span><span>Elige <strong>Modo de prueba</strong> para comenzar</span></div>
+                <div class="step"><span class="step-n">4</span><span>Copia la URL (termina en <code>.firebaseio.com</code>)</span></div>
+                <div class="step"><span class="step-n">5</span><span>Pégala abajo y guarda</span></div>
+              </div>
+
+              <div class="form-group" style="margin-top:16px">
+                <label>URL de Firebase Realtime Database</label>
+                <input type="url" id="cfg-firebase-url" class="inp" placeholder="https://tu-proyecto-default-rtdb.firebaseio.com" />
+              </div>
+              <div class="firebase-actions">
+                <button class="btn-primary" onclick="saveFirebaseUrl()">
+                  🔥 Conectar Firebase
+                </button>
+                <button class="btn-ghost" onclick="testFirebaseConnection()">
+                  🧪 Probar Conexión
+                </button>
+                <button class="btn-danger-outline" onclick="clearFirebaseUrl()">
+                  Desconectar
+                </button>
+              </div>
+              <div class="firebase-status-box" id="firebase-status-box" style="display:none"></div>
+            </div>
+
+            <!-- Exportar / Importar -->
+            <div class="card">
+              <div class="card-header"><h3>💾 Exportar / Importar Datos</h3></div>
+              <p class="config-desc">Descarga una copia de todos tus datos o restaura desde un archivo JSON.</p>
+              <div class="export-actions">
+                <button class="btn-primary" onclick="exportarDatos()">⬇️ Exportar JSON</button>
+                <label class="btn-ghost btn-file">
+                  ⬆️ Importar JSON
+                  <input type="file" accept=".json" id="import-file" onchange="importarDatos(event)" style="display:none" />
+                </label>
+              </div>
+            </div>
+
+            <!-- Danger zone -->
+            <div class="card danger-card">
+              <div class="card-header"><h3>⚠️ Zona de Riesgo</h3></div>
+              <p class="config-desc">Acciones irreversibles. Úsalas con precaución.</p>
+              <div class="danger-actions">
+                <button class="btn-danger-outline" onclick="resetLocalData()">🗑️ Limpiar datos locales</button>
+              </div>
+            </div>
           </div>
-          <div class="resumen-block" id="resumen-comparativa-block">
-            <h4>📊 Comparativa por Mes</h4>
-            <div id="resumen-comparativa"></div>
-          </div>
-          <div class="resumen-block">
-            <h4>📅 Actividad por Semana</h4>
-            <canvas id="chartSemana" height="200"></canvas>
-          </div>
-        </div>
-      </div>
+        </div><!-- /configuracion -->
+
+      </div><!-- /tabs-container -->
     </main>
-  </div>
+  </div><!-- /app-shell -->
 
-  <!-- ============== MODALS ============== -->
+  <!-- ═══════════════════════════════════════
+       MODALS
+  ═══════════════════════════════════════ -->
 
   <!-- MODAL VENTA -->
   <div class="modal-overlay hidden" id="modal-venta">
-    <div class="modal">
-      <div class="modal-header">
+    <div class="modal modal-lg">
+      <div class="modal-head">
         <h3 id="modal-venta-title">Nuevo Pedido</h3>
-        <button class="modal-close" onclick="closeModal('modal-venta')">✕</button>
+        <button class="modal-x" onclick="closeModal('modal-venta')">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-grid">
-          <div class="form-group">
+          <div class="fg">
             <label>N° Pedido</label>
-            <input type="number" id="v-numero" class="form-input" readonly />
+            <input type="number" id="v-numero" class="inp" readonly />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Fecha *</label>
-            <input type="date" id="v-fecha" class="form-input" required />
+            <input type="date" id="v-fecha" class="inp" required />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Cliente *</label>
-            <input type="text" id="v-cliente" class="form-input" list="list-clientes" placeholder="Nombre del cliente" required />
+            <input type="text" id="v-cliente" class="inp" list="list-clientes" placeholder="Nombre del cliente" required />
             <datalist id="list-clientes"></datalist>
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>¿Pagado?</label>
-            <select id="v-pagado" class="form-input">
-              <option value="SI">SI</option>
-              <option value="NO">NO</option>
+            <select id="v-pagado" class="inp">
+              <option value="SI">✅ Pagado</option>
+              <option value="NO">⏳ Pendiente</option>
             </select>
           </div>
-          <div class="form-group full-width">
+          <div class="fg span-full">
             <label>Material *</label>
-            <select id="v-material" class="form-input" onchange="autoFillCosto()" required>
-              <option value="">-- Seleccionar --</option>
+            <select id="v-material" class="inp" onchange="autoFillCosto()" required>
+              <option value="">— Seleccionar material —</option>
               <option value="arena fina">Arena Fina</option>
               <option value="arena gruesa">Arena Gruesa</option>
               <option value="arena gruesa rio">Arena Gruesa Río</option>
@@ -408,41 +565,47 @@
               <option value="confitillo">Confitillo</option>
               <option value="ormigon">Hormigón</option>
               <option value="pilca">Pilca</option>
+              <option value="piedra pilca">Piedra Pilca</option>
               <option value="desmonte">Desmonte</option>
+              <option value="afirmado">Afirmado</option>
+              <option value="tierra de chacra">Tierra de Chacra</option>
+              <option value="relleno">Relleno</option>
+              <option value="greda">Greda</option>
+              <option value="tiki">Tiki</option>
               <option value="otro">Otro...</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Cantidad Vendida (m³) *</label>
-            <input type="number" id="v-cantidad" class="form-input" step="0.5" min="0" oninput="calcVenta()" required />
+          <div class="fg">
+            <label>Cant. Vendida (m³) *</label>
+            <input type="number" id="v-cantidad" class="inp" step="0.5" min="0" oninput="calcVenta()" required />
           </div>
-          <div class="form-group">
-            <label>Precio Venta (S/ x m³) *</label>
-            <input type="number" id="v-precio-venta" class="form-input" step="0.5" min="0" oninput="calcVenta()" required />
+          <div class="fg">
+            <label>Precio Venta (S/×m³) *</label>
+            <input type="number" id="v-precio-venta" class="inp" step="0.5" min="0" oninput="calcVenta()" required />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Total Venta (S/)</label>
-            <input type="number" id="v-total-venta" class="form-input calc-field" readonly />
+            <input type="number" id="v-total-venta" class="inp calc" readonly />
           </div>
-          <div class="form-group">
-            <label>Cantidad Comprada (m³)</label>
-            <input type="number" id="v-cant-comprada" class="form-input" step="0.5" min="0" oninput="calcVenta()" />
+          <div class="fg">
+            <label>Cant. Comprada (m³)</label>
+            <input type="number" id="v-cant-comprada" class="inp" step="0.5" min="0" oninput="calcVenta()" />
           </div>
-          <div class="form-group">
-            <label>Costo x m³ (S/)</label>
-            <input type="number" id="v-costo-m3" class="form-input" step="0.5" min="0" oninput="calcVenta()" />
+          <div class="fg">
+            <label>Costo × m³ (S/)</label>
+            <input type="number" id="v-costo-m3" class="inp" step="0.5" min="0" oninput="calcVenta()" />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Total Costo (S/)</label>
-            <input type="number" id="v-total-costo" class="form-input calc-field" readonly />
+            <input type="number" id="v-total-costo" class="inp calc" readonly />
           </div>
-          <div class="form-group">
+          <div class="fg span-full">
             <label>Ganancia (S/)</label>
-            <input type="number" id="v-ganancia" class="form-input calc-field ganancia-field" readonly />
+            <input type="number" id="v-ganancia" class="inp calc ganancia-inp" readonly />
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-foot">
         <button class="btn-ghost" onclick="closeModal('modal-venta')">Cancelar</button>
         <button class="btn-primary" onclick="saveVenta()">Guardar Pedido</button>
       </div>
@@ -452,38 +615,33 @@
   <!-- MODAL GASTO -->
   <div class="modal-overlay hidden" id="modal-gasto">
     <div class="modal modal-sm">
-      <div class="modal-header">
+      <div class="modal-head">
         <h3 id="modal-gasto-title">Nuevo Gasto</h3>
-        <button class="modal-close" onclick="closeModal('modal-gasto')">✕</button>
+        <button class="modal-x" onclick="closeModal('modal-gasto')">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-grid">
-          <div class="form-group">
+          <div class="fg">
             <label>Fecha *</label>
-            <input type="date" id="g-fecha" class="form-input" required />
+            <input type="date" id="g-fecha" class="inp" required />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Descripción *</label>
-            <input type="text" id="g-descripcion" class="form-input" list="list-gastos-desc" placeholder="ej: petroleo, comida..." required />
-            <datalist id="list-gastos-desc">
-              <option value="Petroleo/Combustible">
-              <option value="Comida">
-              <option value="Mantenimiento">
-              <option value="Pintura">
-              <option value="Filtros">
-              <option value="Electrico">
-              <option value="Cableado">
-              <option value="Repuestos">
-              <option value="Otros">
+            <input type="text" id="g-descripcion" class="inp" list="list-gastos" placeholder="ej: Petroleo, Comida..." required />
+            <datalist id="list-gastos">
+              <option value="Petroleo"><option value="Combustible"><option value="Comida">
+              <option value="Pintura"><option value="Filtros carro"><option value="Eléctrico">
+              <option value="Cableado"><option value="Mantenimiento"><option value="Repuestos">
+              <option value="Soportes máquina"><option value="Otros">
             </datalist>
           </div>
-          <div class="form-group full-width">
+          <div class="fg span-full">
             <label>Monto (S/) *</label>
-            <input type="number" id="g-monto" class="form-input" step="0.01" min="0" required />
+            <input type="number" id="g-monto" class="inp" step="0.01" min="0" required />
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-foot">
         <button class="btn-ghost" onclick="closeModal('modal-gasto')">Cancelar</button>
         <button class="btn-primary" onclick="saveGasto()">Guardar Gasto</button>
       </div>
@@ -493,20 +651,20 @@
   <!-- MODAL COMPRA -->
   <div class="modal-overlay hidden" id="modal-compra">
     <div class="modal modal-sm">
-      <div class="modal-header">
-        <h3 id="modal-compra-title">Registrar Compra de Agregado</h3>
-        <button class="modal-close" onclick="closeModal('modal-compra')">✕</button>
+      <div class="modal-head">
+        <h3 id="modal-compra-title">Registrar Compra</h3>
+        <button class="modal-x" onclick="closeModal('modal-compra')">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-grid">
-          <div class="form-group">
+          <div class="fg">
             <label>Fecha *</label>
-            <input type="date" id="c-fecha" class="form-input" required />
+            <input type="date" id="c-fecha" class="inp" required />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Agregado *</label>
-            <select id="c-agregado" class="form-input" required>
-              <option value="">-- Seleccionar --</option>
+            <select id="c-agregado" class="inp" required>
+              <option value="">— Seleccionar —</option>
               <option value="arena fina">Arena Fina</option>
               <option value="arena gruesa">Arena Gruesa</option>
               <option value="arena gruesa rio">Arena Gruesa Río</option>
@@ -515,71 +673,73 @@
               <option value="ormigon">Hormigón</option>
               <option value="pilca">Pilca</option>
               <option value="desmonte">Desmonte</option>
+              <option value="afirmado">Afirmado</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Cantidad Recibida (m³)</label>
-            <input type="number" id="c-cantidad" class="form-input" step="0.5" min="0" oninput="calcCostoM3()" />
+            <input type="number" id="c-cantidad" class="inp" step="0.5" min="0" oninput="calcCostoM3()" />
           </div>
-          <div class="form-group">
-            <label>Costo Total Compra (S/) *</label>
-            <input type="number" id="c-costo" class="form-input" step="0.01" min="0" oninput="calcCostoM3()" required />
+          <div class="fg">
+            <label>Costo Total (S/) *</label>
+            <input type="number" id="c-costo" class="inp" step="0.01" min="0" oninput="calcCostoM3()" required />
           </div>
-          <div class="form-group full-width">
-            <label>Costo x m³ estimado</label>
-            <input type="number" id="c-costo-m3" class="form-input calc-field" readonly />
+          <div class="fg span-full">
+            <label>Costo × m³ estimado</label>
+            <input type="number" id="c-costo-m3" class="inp calc" readonly />
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-foot">
         <button class="btn-ghost" onclick="closeModal('modal-compra')">Cancelar</button>
         <button class="btn-primary" onclick="saveCompra()">Guardar Compra</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL PRESTAMO -->
+  <!-- MODAL PRÉSTAMO -->
   <div class="modal-overlay hidden" id="modal-prestamo">
     <div class="modal modal-sm">
-      <div class="modal-header">
-        <h3>Añadir Préstamo</h3>
-        <button class="modal-close" onclick="closeModal('modal-prestamo')">✕</button>
+      <div class="modal-head">
+        <h3 id="modal-prestamo-title">Añadir Préstamo</h3>
+        <button class="modal-x" onclick="closeModal('modal-prestamo')">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-grid">
-          <div class="form-group full-width">
+          <div class="fg span-full">
             <label>Nombre / Descripción</label>
-            <input type="text" id="p-nombre" class="form-input" placeholder="ej: Préstamo banco, amigo..." />
+            <input type="text" id="p-nombre" class="inp" placeholder="ej: Banco BCP, Préstamo familiar..." />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Monto (S/) *</label>
-            <input type="number" id="p-monto" class="form-input" step="0.01" min="0" required />
+            <input type="number" id="p-monto" class="inp" step="0.01" min="0" required />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Fecha Inicio</label>
-            <input type="date" id="p-fecha" class="form-input" />
+            <input type="date" id="p-fecha" class="inp" />
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-foot">
         <button class="btn-ghost" onclick="closeModal('modal-prestamo')">Cancelar</button>
-        <button class="btn-primary" onclick="savePrestamo()">Guardar</button>
+        <button class="btn-primary" onclick="savePrestamo()">Guardar Préstamo</button>
       </div>
     </div>
   </div>
 
-  <!-- CONFIRM DIALOG -->
+  <!-- MODAL CONFIRMAR ELIMINAR -->
   <div class="modal-overlay hidden" id="modal-confirm">
     <div class="modal modal-xs">
-      <div class="modal-header">
-        <h3>¿Confirmar eliminación?</h3>
+      <div class="modal-head">
+        <h3>¿Eliminar registro?</h3>
+        <button class="modal-x" onclick="closeModal('modal-confirm')">✕</button>
       </div>
       <div class="modal-body">
-        <p>Esta acción no se puede deshacer.</p>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6" id="confirm-msg">Esta acción no se puede deshacer.</p>
       </div>
-      <div class="modal-footer">
+      <div class="modal-foot">
         <button class="btn-ghost" onclick="closeModal('modal-confirm')">Cancelar</button>
-        <button class="btn-danger" id="confirm-delete-btn">Eliminar</button>
+        <button class="btn-danger" id="confirm-delete-btn">🗑️ Eliminar</button>
       </div>
     </div>
   </div>
@@ -588,6 +748,8 @@
   <div class="toast hidden" id="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <!-- Firebase SDK (opcional - se carga si el usuario configura URL) -->
+  <script src="db.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
