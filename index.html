@@ -335,6 +335,7 @@
               <h3>Historial de Compras</h3>
               <span class="count-chip" id="compras-count">0</span>
             </div>
+            <!-- Vista tabla (desktop) -->
             <div class="table-wrap">
               <table class="data-table">
                 <thead><tr>
@@ -352,6 +353,13 @@
                   <td></td><td></td>
                 </tr></tfoot>
               </table>
+            </div>
+            <!-- Vista cards (móvil) -->
+            <div id="compras-mobile-list" style="display:none"></div>
+            <!-- Total siempre visible -->
+            <div class="compras-total-row">
+              <span>Total invertido:</span>
+              <span class="mono fw neg" id="total-compras-sum-mobile"></span>
             </div>
           </div>
         </div><!-- /stock -->

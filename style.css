@@ -647,3 +647,59 @@ select.inp{cursor:pointer}
   .toast{bottom:24px;left:auto;right:24px;transform:none}
   @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 }
+
+/* ── COMPRAS MOBILE CARDS ────────────────────────────────────── */
+#compras-mobile-list{padding:10px 0;display:flex;flex-direction:column;gap:10px}
+
+.compra-card-mobile{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;
+  transition:border-color .15s;
+}
+.compra-card-mobile:active{border-color:var(--border2)}
+
+.ccm-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.ccm-info{display:flex;flex-direction:column;gap:3px}
+.ccm-nombre{font-size:14px;font-weight:700;color:var(--text);text-transform:capitalize}
+.ccm-fecha{font-size:11px;color:var(--text3)}
+.ccm-monto{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--red);white-space:nowrap}
+
+.ccm-bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ccm-meta{display:flex;gap:12px;font-size:11px;color:var(--text3)}
+.ccm-meta span{display:flex;align-items:center;gap:4px}
+
+.ccm-actions{display:flex;gap:8px}
+.btn-ccm-edit,.btn-ccm-del{
+  padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;
+  cursor:pointer;border:none;min-height:38px;min-width:80px;
+  display:flex;align-items:center;gap:6px;justify-content:center;
+}
+.btn-ccm-edit{background:rgba(249,115,22,.15);color:var(--accent);border:1px solid rgba(249,115,22,.3)}
+.btn-ccm-edit:active{background:rgba(249,115,22,.3)}
+.btn-ccm-del{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.btn-ccm-del:active{background:rgba(239,68,68,.2)}
+
+.compras-total-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 14px;margin-top:6px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);font-size:12px;font-weight:700;color:var(--text2);
+}
+
+/* En desktop ocultar el total row extra y mostrar solo tabla */
+@media(min-width:700px){
+  .compras-total-row{display:none}
+}
+@media(max-width:699px){
+  /* En móvil mejorar el touch scroll de todas las tablas */
+  .table-wrap{
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y;
+  }
+  /* Touch más fácil en botones de tabla */
+  .btn-icon{
+    min-height:42px;
+    min-width:42px;
+    font-size:16px;
+  }
+}

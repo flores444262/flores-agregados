@@ -889,24 +889,67 @@ function renderStock() {
 
   const sorted = [...compras].sort((a,b)=>b.fecha.localeCompare(a.fecha));
   document.getElementById('compras-count').textContent = sorted.length;
-  document.getElementById('tbody-compras').innerHTML = sorted.length ? sorted.map(c=>{
-    const cM3 = c.cantidad ? (c.costo/c.cantidad).toFixed(2) : '—';
-    return `<tr>
-      <td>${formatDate(c.fecha)}</td>
-      <td>${cap(c.agregado)}</td>
-      <td class="mono">${c.cantidad??'—'}</td>
-      <td class="mono neg">${fmt(c.costo)}</td>
-      <td class="mono">${cM3!=='—'?'S/'+cM3:'—'}</td>
-      <td style="text-align:center">
-        <button class="btn-icon" onclick="editCompra(${c.id})" title="Editar">✏️</button>
-        <button class="btn-icon del" onclick="confirmDelete('compra',${c.id},'${cap(c.agregado)}')" title="Eliminar">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('') :
-    `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text3)">Sin compras en este período</td></tr>`;
-
   const total = compras.reduce((s,c)=>s+(+c.costo||0),0);
   document.getElementById('total-compras-sum').textContent = fmt(total);
+  const tmob = document.getElementById('total-compras-sum-mobile');
+  if (tmob) tmob.textContent = fmt(total);
+
+  const isMobile = window.innerWidth < 700;
+
+  if (isMobile) {
+    // ── MÓVIL: tarjetas con botones grandes ──────────────────
+    const container = document.getElementById('compras-mobile-list');
+    if (container) {
+      container.innerHTML = sorted.length ? sorted.map(c => {
+        const cM3 = c.cantidad ? (c.costo/c.cantidad).toFixed(2) : '—';
+        return `<div class="compra-card-mobile">
+          <div class="ccm-top">
+            <div class="ccm-info">
+              <div class="ccm-nombre">${cap(c.agregado)}</div>
+              <div class="ccm-fecha">${formatDate(c.fecha)}</div>
+            </div>
+            <div class="ccm-monto">${fmt(c.costo)}</div>
+          </div>
+          <div class="ccm-bottom">
+            <div class="ccm-meta">
+              <span>📦 ${c.cantidad??'—'} m³</span>
+              <span>S/${cM3}/m³</span>
+            </div>
+            <div class="ccm-actions">
+              <button class="btn-ccm-edit" onclick="editCompra(${c.id})">✏️ Editar</button>
+              <button class="btn-ccm-del"  onclick="confirmDelete('compra',${c.id},'${cap(c.agregado)}')">🗑️ Eliminar</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('') : `<div style="text-align:center;padding:28px;color:var(--text3)">Sin compras en este período</div>`;
+    }
+    // ocultar tabla, mostrar cards
+    const tw = document.querySelector('#tab-stock .table-wrap');
+    if (tw) tw.style.display = 'none';
+    if (container) container.style.display = 'block';
+  } else {
+    // ── DESKTOP: tabla normal ──────────────────────────────
+    const tw = document.querySelector('#tab-stock .table-wrap');
+    if (tw) tw.style.display = '';
+    const container = document.getElementById('compras-mobile-list');
+    if (container) container.style.display = 'none';
+
+    document.getElementById('tbody-compras').innerHTML = sorted.length ? sorted.map(c=>{
+      const cM3 = c.cantidad ? (c.costo/c.cantidad).toFixed(2) : '—';
+      return `<tr>
+        <td>${formatDate(c.fecha)}</td>
+        <td>${cap(c.agregado)}</td>
+        <td class="mono">${c.cantidad??'—'}</td>
+        <td class="mono neg">${fmt(c.costo)}</td>
+        <td class="mono">${cM3!=='—'?'S/'+cM3:'—'}</td>
+        <td style="text-align:center">
+          <button class="btn-icon" onclick="editCompra(${c.id})" title="Editar">✏️</button>
+          <button class="btn-icon del" onclick="confirmDelete('compra',${c.id},'${cap(c.agregado)}')" title="Eliminar">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('') :
+      `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text3)">Sin compras en este período</td></tr>`;
+  }
 }
 
 function calcCostoM3() {
@@ -1390,3 +1433,11 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// Re-render stock when switching orientation/size
+window.addEventListener('resize', () => {
+  const stockTab = document.getElementById('tab-stock');
+  if (stockTab && !stockTab.classList.contains('hidden')) {
+    renderStock();
+  }
+});
