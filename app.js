@@ -238,22 +238,35 @@ const PRESTAMOS_INIT = [
 // ═══════════════════════════════════════════════════════════
 //  PERSISTENCIA LOCAL
 // ═══════════════════════════════════════════════════════════
-const LS_KEY = 'flores-agr-v3';
+const LS_KEY = 'flores-agr-v5';
 
 function loadData() {
-  const saved = localStorage.getItem(LS_KEY);
-  if (saved) {
-    try {
+  // Limpiar keys viejas corruptas
+  ['flores-agr-v1','flores-agr-v2','flores-agr-v3','flores-agr-v4',
+   'flores_cache_v3','flores_fb_cache_v3'].forEach(k => {
+    try { localStorage.removeItem(k); } catch(e) {}
+  });
+
+  let loaded = false;
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) {
       const d = JSON.parse(saved);
-      STATE.capitalInicial  = d.capitalInicial  ?? 3000;
-      STATE.ventas          = d.ventas          ?? VENTAS_INIT.map(v=>({...v}));
-      STATE.gastos          = d.gastos          ?? GASTOS_INIT.map(g=>({...g}));
-      STATE.compras         = d.compras         ?? COMPRAS_INIT.map(c=>({...c}));
-      STATE.prestamos       = d.prestamos       ?? PRESTAMOS_INIT.map(p=>({...p}));
-      STATE.diasTrabajados  = d.diasTrabajados  ?? 26;
-      STATE.mesActivo       = d.mesActivo       ?? 'todos';
-    } catch(e) { loadDefaults(); }
-  } else { loadDefaults(); }
+      STATE.capitalInicial = d.capitalInicial ?? 3000;
+      STATE.diasTrabajados = d.diasTrabajados ?? 26;
+      STATE.mesActivo      = d.mesActivo      ?? 'todos';
+      if (d.ventas    && d.ventas.length    > 0) { STATE.ventas    = d.ventas;    loaded = true; }
+      if (d.gastos    && d.gastos.length    > 0)   STATE.gastos    = d.gastos;
+      if (d.compras   && d.compras.length   > 0)   STATE.compras   = d.compras;
+      if (d.prestamos && d.prestamos.length > 0)   STATE.prestamos = d.prestamos;
+    }
+  } catch(e) { console.warn('loadData parse error:', e); }
+
+  // Si no hay datos guardados → cargar datos iniciales
+  if (!loaded || !STATE.ventas    || STATE.ventas.length    === 0) STATE.ventas    = VENTAS_INIT.map(v=>({...v}));
+  if (!STATE.gastos    || STATE.gastos.length    === 0) STATE.gastos    = GASTOS_INIT.map(g=>({...g}));
+  if (!STATE.compras   || STATE.compras.length   === 0) STATE.compras   = COMPRAS_INIT.map(c=>({...c}));
+  if (!STATE.prestamos || STATE.prestamos.length === 0) STATE.prestamos = PRESTAMOS_INIT.map(p=>({...p}));
 }
 
 function loadDefaults() {
@@ -276,34 +289,57 @@ function saveData() {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  FIREBASE INTEGRATION PLACEHOLDER
-//  Conecta con db.js cuando se configura la URL de Firebase
+//  FIREBASE INTEGRATION
+//  Conecta con db.js — con timeout para no bloquear la app
 // ═══════════════════════════════════════════════════════════
 let FB_ENABLED = false;
+
+// Promesa con timeout para evitar colgarse
+function withTimeout(promise, ms = 6000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), ms)
+    )
+  ]);
+}
 
 async function initFirebase() {
   if (typeof DB === 'undefined') return;
   try {
-    const ok = await DB.init();
+    // Verificar conexión con timeout de 5 segundos
+    const ok = await withTimeout(DB.init(), 5000);
     FB_ENABLED = ok;
     if (ok) {
-      // Cargar datos desde Firebase
-      STATE.ventas    = await DB.getVentas();
-      STATE.gastos    = await DB.getGastos();
-      STATE.compras   = await DB.getCompras();
-      STATE.prestamos = await DB.getPrestamos();
-      const cfg       = await DB.getConfig();
+      // Cargar datos desde Firebase con timeout de 8 segundos
+      const [ventas, gastos, compras, prestamos, cfg] = await withTimeout(
+        Promise.all([
+          DB.getVentas(),
+          DB.getGastos(),
+          DB.getCompras(),
+          DB.getPrestamos(),
+          DB.getConfig(),
+        ]),
+        8000
+      );
+      if (ventas    && ventas.length)    STATE.ventas    = ventas;
+      if (gastos    && gastos.length)    STATE.gastos    = gastos;
+      if (compras   && compras.length)   STATE.compras   = compras;
+      if (prestamos && prestamos.length) STATE.prestamos = prestamos;
       if (cfg) {
         STATE.capitalInicial = cfg.capitalInicial  ?? STATE.capitalInicial;
         STATE.diasTrabajados = cfg.diasTrabajados  ?? STATE.diasTrabajados;
         STATE.mesActivo      = cfg.mesActivo       ?? STATE.mesActivo;
       }
       updateSyncPill('online');
-      showToast('🔥 Firebase conectado','success');
+      showToast('🔥 Firebase conectado', 'success');
     } else {
       updateSyncPill('offline');
     }
   } catch(e) {
+    // Si Firebase falla o tarda mucho → usa datos locales sin bloquear
+    console.warn('[Firebase] Error o timeout — usando datos locales:', e.message);
+    FB_ENABLED = false;
     updateSyncPill('offline');
   }
 }
@@ -1289,18 +1325,24 @@ function showToast(msg, type='success') {
   toastTimer = setTimeout(()=>{ t.className='toast hidden'; }, 3200);
 }
 
-// ═══════════════════════════════════════════════════════════
+
+// ===========================================================
 //  INIT
-// ═══════════════════════════════════════════════════════════
-async function init() {
+// ===========================================================
+function init() {
+  // 1. Limpiar loading desde el inicio
+  const lo = document.getElementById('loading-overlay');
+  if (lo) lo.style.display = 'none';
+
+  // 2. Cargar datos
   loadData();
 
-  // Fecha sidebar
+  // 3. Fecha sidebar
   const dateEl = document.getElementById('sidebar-date');
   if (dateEl) dateEl.textContent =
-    new Date().toLocaleDateString('es-PE',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+    new Date().toLocaleDateString('es-PE', {weekday:'short',day:'2-digit',month:'short',year:'numeric'});
 
-  // Nav listeners
+  // 4. Nav clicks
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       switchTab(btn.dataset.tab);
@@ -1308,33 +1350,43 @@ async function init() {
     });
   });
 
-  // Cerrar modales al hacer click fuera
+  // 5. Cerrar modal al click fuera
   document.querySelectorAll('.modal-overlay').forEach(ov => {
     ov.addEventListener('click', e => {
-      if (e.target===ov) {
+      if (e.target === ov) {
         ov.classList.add('hidden');
-        STATE.editingVenta=STATE.editingGasto=STATE.editingCompra=STATE.editingPrestamo=null;
+        STATE.editingVenta = STATE.editingGasto = STATE.editingCompra = STATE.editingPrestamo = null;
       }
     });
   });
 
-  // ESC
+  // 6. ESC cierra modales
   document.addEventListener('keydown', e => {
-    if (e.key==='Escape')
-      document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(m=>m.classList.add('hidden'));
+    if (e.key === 'Escape')
+      document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(m => m.classList.add('hidden'));
   });
 
-  // Intentar iniciar Firebase
-  try { await initFirebase(); } catch(e) {}
-
-  // Renderizado inicial
+  // 7. Renderizar dashboard con datos locales
   renderMesSwitcher();
   renderDashboard();
   updateSidebarCapital();
 
-  // Ocultar loading
-  const lo = document.getElementById('loading-overlay');
-  if (lo) { lo.style.opacity='0'; setTimeout(()=>lo.classList.add('hidden'),300); lo.style.transition='opacity .3s'; }
+  // 8. Firebase en segundo plano (500ms despues, no bloquea)
+  setTimeout(() => {
+    initFirebase()
+      .then(() => {
+        if (FB_ENABLED) {
+          renderMesSwitcher();
+          const tab = document.querySelector('.nav-item.active');
+          if (tab) switchTab(tab.dataset.tab);
+          updateSidebarCapital();
+        }
+      })
+      .catch(e => {
+        console.warn('[FB] sin conexion:', e.message);
+        updateSyncPill('offline');
+      });
+  }, 500);
 }
 
 document.addEventListener('DOMContentLoaded', init);

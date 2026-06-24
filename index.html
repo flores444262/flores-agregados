@@ -9,10 +9,8 @@
 </head>
 <body>
 
-  <script src="db.js"></script>
-
-  <!-- LOADING OVERLAY -->
-  <div class="loading-overlay" id="loading-overlay">
+  <!-- loading oculto por defecto -->
+  <div id="loading-overlay" style="display:none">
     <div class="loader-logo">FA</div>
     <div class="spinner"></div>
     <div class="loading-text">Cargando sistema...</div>
@@ -748,8 +746,7 @@
   <div class="toast hidden" id="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-  <!-- Firebase SDK (opcional - se carga si el usuario configura URL) -->
-  <script src="db.js"></script>
-  <script src="app.js"></script>
+  <script src="db.js?v=10"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
